@@ -1,54 +1,160 @@
 <template>
   <div>
-    <h1>Food List Component</h1>
+    <v-dialog v-model="dialog" max-width="500px">
+      <v-btn color="primary" dark slot="activator" class="mb-2">Add Food</v-btn>
+      <v-card>
+        <v-card-title>
+          <span class="headline">Add Food</span>
+        </v-card-title>
+        <v-card-text>
+          <v-container grid-list-md>
+            <v-layout wrap>
+              <v-flex xs12 sm6>
+                <v-select
+                  label="Select a fridge"
+                  :items="fridges"
+                  item-text="label"
+                  item-value="key"
+                  v-model="editItem.fridge"
+                  :rules="vRules"
+                  single-line
+                ></v-select>
+              </v-flex>
+              <v-flex xs12 sm6>
+                <v-text-field
+                  label="Food"
+                  v-model="editItem.food"
+                  :rules="vRules"
+                  required
+                ></v-text-field>
+              </v-flex>
+            </v-layout>
+          </v-container>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="blue darken-1" flat @click.native="close">Cancel</v-btn>
+          <v-btn color="blue darken-1" flat @click.native="save">Save</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
 
-    <div>
-      <input v-model="foodName">
-      <button @click="onAddFood">Add</button>
-    </div>
-
-    <ul>
-      <li
-        v-for="(val, key) in foods"
-        :key="key"
-        @click="deleteFood(key)"
-      >
-        {{ val.food }} - {{ val.count }}
-      </li>
-    </ul>
+    <v-data-table
+      :headers="headers"
+      :items="foods"
+      hide-actions
+      class="elevation-1"
+    >
+      <template slot="items" slot-scope="props">
+        <td>{{ props.index + 1 }}</td>
+        <td>{{ props.item.fridge | fridgeLabel }}</td>
+        <td>{{ props.item.food }}</td>
+        <td>{{ props.item.count }}</td>
+        <td>
+          <v-btn flat icon color="primary" @click="removeItem(props.item)">
+            <v-icon>check</v-icon>
+          </v-btn>
+        </td>
+      </template>
+      <template slot="no-data">
+        <v-alert :value="true" color="info" icon="warning">
+          Hungry? You don't have any food in the fridges! Please buy them!
+        </v-alert>
+      </template>
+    </v-data-table>
   </div>
 </template>
 
 <script>
-import { mapState, mapActions } from 'vuex'
+import { mapActions, mapGetters } from 'vuex'
+import { find } from 'lodash'
+
+const fridges = [
+  {
+    label: 'Fridge 1',
+    key: 'fridge-1'
+  },
+  {
+    label: 'Fridge 2',
+    key: 'fridge-2'
+  }
+]
 
 export default {
   name: 'FoodList',
 
-  data: () => {
+  computed: {
+    ...mapGetters({
+      foods: 'getFoodList'
+    })
+  },
+
+  data () {
     return {
-      foodName: ''
+      headers: [
+        {
+          text: 'No',
+          sortable: false,
+          value: 'no'
+        },
+        { text: 'Fridge', value: 'fridge' },
+        { text: 'Name', value: 'food' },
+        { text: 'Count', value: 'count' },
+        {
+          text: 'Use Food',
+          sortable: false,
+          value: 'actions'
+        }
+      ],
+      defaultItem: {
+        food: '',
+        fridge: 0,
+        count: 0
+      },
+      dialog: false,
+      editItem: { },
+      editIndex: -1,
+      fridges,
+      vRules: [
+        v => !!v || 'Name is required'
+      ]
+    }
+  },
+
+  filters: {
+    fridgeLabel (key) {
+      const item = find(fridges, { key })
+      return item ? item.label : ''
     }
   },
 
   methods: {
     ...mapActions([
       'addFood',
-      'deleteFood'
+      'deleteFood',
+      'loadFoods'
     ]),
 
-    onAddFood () {
-      this.addFood(this.foodName)
+    close () {
+      this.dialog = false
+      setTimeout(() => {
+        this.editedItem = Object.assign({}, this.defaultItem)
+        this.editedIndex = -1
+      }, 300)
+    },
+
+    save () {
+      this.addFood(this.editItem)
+      this.close()
+    },
+
+    removeItem (item) {
+      this.deleteFood(item)
     }
   },
 
-  computed: {
-    ...mapState({
-      'foods': state => {
-        console.log(state)
-        return state.foods.list
-      }
-    })
+  mounted () {
+    this.loadFoods()
   }
 }
 </script>

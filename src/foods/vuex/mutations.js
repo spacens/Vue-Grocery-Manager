@@ -1,31 +1,36 @@
 import Vue from 'vue'
-import { v4 as uuidv4 } from 'uuid'
-import { findKey } from 'lodash'
+import { findIndex } from 'lodash'
+import { save } from '../utils'
 
 export default {
-  ADD_FOOD (state, { food }) {
-    let key = findKey(state.list, { food })
-
-    if (key) {
-      state.list[key].count++
-    } else {
-      key = uuidv4()
-
-      state.list = {
-        ...state.list,
-        [key]: {
-          food,
-          count: 1
-        }
-      }
-    }
+  LOAD_FOODS (state, payload) {
+    state.list = payload
+    state.list.forEach((o) => {
+      o.count = parseInt(o.count)
+    })
   },
 
-  DELETE_FOOD (state, { key }) {
-    if (state.list[key].count > 1) {
-      state.list[key].count--
+  ADD_FOOD (state, { food }) {
+    let index = findIndex(state.list, food)
+
+    if (index < 0) {
+      state.list = [{...food, count: 1}]
     } else {
-      Vue.delete(state.list, key)
+      state.list[index].count++
     }
+
+    save(state.list)
+  },
+
+  DELETE_FOOD (state, { food }) {
+    let index = findIndex(state.list, food)
+
+    if (state.list[index].count > 1) {
+      state.list[index].count--
+    } else {
+      Vue.delete(state.list, index)
+    }
+
+    save(state.list)
   }
 }
