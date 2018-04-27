@@ -1,5 +1,7 @@
-import { values } from 'lodash'
-
 export default {
-  getFoodList: state => values(state.list)
+  getFoodList: state => {
+    return state.list.filter(
+      item => !state.filter || item.fridge === state.filter
+    )
+  }
 }

@@ -1,43 +1,58 @@
 <template>
   <div>
-    <v-dialog v-model="dialog" max-width="500px">
-      <v-btn color="primary" dark slot="activator" class="mb-2">Add Food</v-btn>
-      <v-card>
-        <v-card-title>
-          <span class="headline">Add Food</span>
-        </v-card-title>
-        <v-card-text>
-          <v-container grid-list-md>
-            <v-layout wrap>
-              <v-flex xs12 sm6>
-                <v-select
-                  label="Select a fridge"
-                  :items="fridges"
-                  item-text="label"
-                  item-value="key"
-                  v-model="editItem.fridge"
-                  :rules="vRules"
-                  single-line
-                ></v-select>
-              </v-flex>
-              <v-flex xs12 sm6>
-                <v-text-field
-                  label="Food"
-                  v-model="editItem.food"
-                  :rules="vRules"
-                  required
-                ></v-text-field>
-              </v-flex>
-            </v-layout>
-          </v-container>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="blue darken-1" flat @click.native="close">Cancel</v-btn>
-          <v-btn color="blue darken-1" flat @click.native="save">Save</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <v-layout wrap>
+      <v-flex xs6 sm8>
+        <v-dialog v-model="dialog" max-width="500px">
+          <v-btn color="primary" dark slot="activator" class="mb-2">Add Food</v-btn>
+          <v-card>
+            <v-card-title>
+              <span class="headline">Add Food</span>
+            </v-card-title>
+            <v-card-text>
+              <v-container grid-list-md>
+                <v-layout wrap>
+                  <v-flex xs12 sm6>
+                    <v-select
+                      label="Select a fridge"
+                      :items="fridges"
+                      item-text="label"
+                      item-value="key"
+                      v-model="editItem.fridge"
+                      :rules="vRules"
+                      single-line
+                    ></v-select>
+                  </v-flex>
+                  <v-flex xs12 sm6>
+                    <v-text-field
+                      label="Food"
+                      v-model="editItem.food"
+                      :rules="vRules"
+                      required
+                    ></v-text-field>
+                  </v-flex>
+                </v-layout>
+              </v-container>
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="blue darken-1" flat @click.native="close">Cancel</v-btn>
+              <v-btn color="blue darken-1" flat @click.native="save">Save</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+        </v-flex>
+        <v-flex xs6 sm4>
+          <v-select
+            label="Fridge"
+            :items="fridgeFilter"
+            item-text="label"
+            item-value="key"
+            v-model="selected"
+            @change="changeFilter"
+            single-line
+          ></v-select>
+        </v-flex>
+      </v-layout>
 
     <v-data-table
       :headers="headers"
@@ -89,7 +104,7 @@ export default {
     })
   },
 
-  data () {
+  data  () {
     return {
       headers: [
         {
@@ -112,12 +127,21 @@ export default {
         count: 0
       },
       dialog: false,
-      editItem: { },
+      editItem: {},
       editIndex: -1,
       fridges,
-      vRules: [
-        v => !!v || 'Name is required'
-      ]
+      fridgeFilter: [
+        {
+          label: 'All',
+          key: ''
+        },
+        ...fridges
+      ],
+      selected: {
+        label: 'All',
+        key: ''
+      },
+      vRules: [v => !!v || 'Name is required']
     }
   },
 
@@ -129,11 +153,7 @@ export default {
   },
 
   methods: {
-    ...mapActions([
-      'addFood',
-      'deleteFood',
-      'loadFoods'
-    ]),
+    ...mapActions(['addFood', 'deleteFood', 'loadFoods', 'setFilter']),
 
     close () {
       this.dialog = false
@@ -150,6 +170,11 @@ export default {
 
     removeItem (item) {
       this.deleteFood(item)
+    },
+
+    changeFilter (item) {
+      console.log(item)
+      this.setFilter(item)
     }
   },
 

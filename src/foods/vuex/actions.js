@@ -11,3 +11,7 @@ export const loadFoods = ({ commit }) => {
   console.log(str)
   commit('LOAD_FOODS', JSON.parse(str))
 }
+
+export const setFilter = ({ commit }, filter) => {
+  commit('SET_FILTER', { filter })
+}

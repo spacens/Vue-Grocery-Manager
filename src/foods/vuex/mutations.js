@@ -13,8 +13,10 @@ export default {
   ADD_FOOD (state, { food }) {
     let index = findIndex(state.list, food)
 
+    console.log(index, food)
+
     if (index < 0) {
-      state.list = [{...food, count: 1}]
+      state.list.push({...food, count: 1})
     } else {
       state.list[index].count++
     }
@@ -32,5 +34,9 @@ export default {
     }
 
     save(state.list)
+  },
+
+  SET_FILTER (state, { filter }) {
+    state.filter = filter
   }
 }
