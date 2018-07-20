@@ -38,5 +38,19 @@ export default {
 
   SET_FILTER (state, { filter }) {
     state.filter = filter
+  },
+
+  MOVE_ITEMS (state, { data }) {
+    const fridge1 = data.fridge1.map(item => ({
+      ...item,
+      fridge: 'fridge-1'
+    }))
+    const fridge2 = data.fridge2.map(item => ({
+      ...item,
+      fridge: 'fridge-2'
+    }))
+
+    state.list = [...fridge1, ...fridge2]
+    save(state.list)
   }
 }

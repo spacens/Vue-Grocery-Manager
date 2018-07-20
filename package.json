@@ -1,8 +1,7 @@
 {
-  "name": "foodmanager",
+  "name": "grocery-manager",
   "version": "1.0.0",
-  "description": "A food managing application",
-  "author": "y2dev",
+  "description": "A grocery management application",
   "private": true,
   "scripts": {
     "dev": "webpack-dev-server --inline --progress --config build/webpack.dev.conf.js",

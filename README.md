@@ -1,6 +1,6 @@
-# foodmanager
+# Grocery Manager
 
-> A food managing application
+> A Grocery Management Application to demonstrate Vue, Vuex and Vuetify
 
 ## Build Setup
 

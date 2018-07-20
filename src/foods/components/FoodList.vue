@@ -2,57 +2,20 @@
   <div>
     <v-layout wrap>
       <v-flex xs6 sm8>
-        <v-dialog v-model="dialog" max-width="500px">
-          <v-btn color="primary" dark slot="activator" class="mb-2">Add Food</v-btn>
-          <v-card>
-            <v-card-title>
-              <span class="headline">Add Food</span>
-            </v-card-title>
-            <v-card-text>
-              <v-container grid-list-md>
-                <v-layout wrap>
-                  <v-flex xs12 sm6>
-                    <v-select
-                      label="Select a fridge"
-                      :items="fridges"
-                      item-text="label"
-                      item-value="key"
-                      v-model="editItem.fridge"
-                      :rules="vRules"
-                      single-line
-                    ></v-select>
-                  </v-flex>
-                  <v-flex xs12 sm6>
-                    <v-text-field
-                      label="Food"
-                      v-model="editItem.food"
-                      :rules="vRules"
-                      required
-                    ></v-text-field>
-                  </v-flex>
-                </v-layout>
-              </v-container>
-            </v-card-text>
-            <v-card-actions>
-              <v-spacer></v-spacer>
-              <v-btn color="blue darken-1" flat @click.native="close">Cancel</v-btn>
-              <v-btn color="blue darken-1" flat @click.native="save">Save</v-btn>
-            </v-card-actions>
-          </v-card>
-        </v-dialog>
-        </v-flex>
-        <v-flex xs6 sm4>
-          <v-select
-            label="Fridge"
-            :items="fridgeFilter"
-            item-text="label"
-            item-value="key"
-            v-model="selected"
-            @change="changeFilter"
-            single-line
-          ></v-select>
-        </v-flex>
-      </v-layout>
+        <AddFood />
+        <MoveFood />
+      </v-flex>
+      <v-flex xs6 sm4>
+        <v-select
+          label="Fridge"
+          :items="fridgeFilter"
+          item-text="label"
+          item-value="key"
+          v-model="selected"
+          @change="changeFilter"
+        ></v-select>
+      </v-flex>
+    </v-layout>
 
     <v-data-table
       :headers="headers"
@@ -83,24 +46,23 @@
 <script>
 import { mapActions, mapGetters } from 'vuex'
 import { find } from 'lodash'
-
-const fridges = [
-  {
-    label: 'Fridge 1',
-    key: 'fridge-1'
-  },
-  {
-    label: 'Fridge 2',
-    key: 'fridge-2'
-  }
-]
+import AddFood from './AddFood.vue'
+import MoveFood from './MoveFood.vue'
+import constants from '../constants'
 
 export default {
   name: 'FoodList',
 
+  components: {
+    AddFood,
+    MoveFood
+  },
+
   computed: {
     ...mapGetters({
-      foods: 'getFoodList'
+      foods: 'getFoodList',
+      fridge1Foods: 'getFoodList1',
+      fridge2Foods: 'getFoodList2'
     })
   },
 
@@ -121,59 +83,33 @@ export default {
           value: 'actions'
         }
       ],
-      defaultItem: {
-        food: '',
-        fridge: 0,
-        count: 0
-      },
-      dialog: false,
-      editItem: {},
-      editIndex: -1,
-      fridges,
       fridgeFilter: [
-        {
-          label: 'All',
-          key: ''
-        },
-        ...fridges
+        constants.defaultFilter,
+        ...constants.fridges
       ],
-      selected: {
-        label: 'All',
-        key: ''
-      },
-      vRules: [v => !!v || 'Name is required']
+      selected: constants.defaultFilter
     }
   },
 
   filters: {
     fridgeLabel (key) {
-      const item = find(fridges, { key })
+      const item = find(constants.fridges, { key })
       return item ? item.label : ''
     }
   },
 
   methods: {
-    ...mapActions(['addFood', 'deleteFood', 'loadFoods', 'setFilter']),
-
-    close () {
-      this.dialog = false
-      setTimeout(() => {
-        this.editedItem = Object.assign({}, this.defaultItem)
-        this.editedIndex = -1
-      }, 300)
-    },
-
-    save () {
-      this.addFood(this.editItem)
-      this.close()
-    },
+    ...mapActions([
+      'deleteFood',
+      'loadFoods',
+      'setFilter'
+    ]),
 
     removeItem (item) {
       this.deleteFood(item)
     },
 
     changeFilter (item) {
-      console.log(item)
       this.setFilter(item)
     }
   },

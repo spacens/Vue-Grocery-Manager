@@ -15,3 +15,7 @@ export const loadFoods = ({ commit }) => {
 export const setFilter = ({ commit }, filter) => {
   commit('SET_FILTER', { filter })
 }
+
+export const moveItems = ({ commit }, data) => {
+  commit('MOVE_ITEMS', { data })
+}
